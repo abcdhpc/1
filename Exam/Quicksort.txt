@@ -1,0 +1,58 @@
+#include <iostream>
+#include <cstdlib>
+#include <omp.h>
+
+using namespace std;
+
+void quickSort(int arr[], int start, int end);
+
+int main() {
+    int n;
+    cout << "Enter the number of elements: ";
+    cin >> n;
+
+    int *array = new int[n];
+
+    cout << "Enter " << n << " elements:\n";
+    for (int i = 0; i < n; i++) cin >> array[i];
+
+    quickSort(array, 0, n - 1);
+
+    cout << "Sorted Array: ";
+    for (int i = 0; i < n; i++) cout << array[i] << " ";
+    cout << endl;
+
+    delete[] array;
+    return 0;
+}
+
+void quickSort(int arr[], int start, int end) {
+    if (start >= end) return;
+
+    int pivot = arr[end];
+    int left = start, right = end - 1;
+
+    while (left <= right) {
+        while (left <= right && arr[left] <= pivot) left++;
+        while (left <= right && arr[right] > pivot) right--;
+
+        if (left < right) {
+            int temp = arr[left];
+            arr[left] = arr[right];
+            arr[right] = temp;
+        }
+    }
+
+    int temp = arr[left];
+    arr[left] = arr[end];
+    arr[end] = temp;
+
+    #pragma omp parallel sections
+    {
+        #pragma omp section
+        quickSort(arr, start, left - 1);
+
+        #pragma omp section
+        quickSort(arr, left + 1, end);
+    }
+}
